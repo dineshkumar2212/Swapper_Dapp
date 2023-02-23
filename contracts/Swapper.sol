@@ -17,7 +17,17 @@ contract Swapper {
         owner=msg.sender;
     }
     function swap(address[] memory _path,uint24 _fee, uint256 _amountIn) public {
-        //build swap params
+
+        require(
+            IERC20(_path[0]).transferFrom(msg.sender,address(this),_amountIn),
+            "Transfer Failed"
+        );
+        
+        require(
+            IERC20(_path[0]).approve(SWAP_ROUTER,_amountIn),
+            "Approval Failed"
+        );
+
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
                 tokenIn:_path[0],
@@ -29,9 +39,22 @@ contract Swapper {
                 amountOutMinimum:0,
                 sqrtPriceLimitX96:0
             });
-        //swap
-        ISwapRouter(SWAP_ROUTER).exactInputSingle(params);
-        //Transfer to Wallet
+        uint256 amountOut=ISwapRouter(SWAP_ROUTER).exactInputSingle(params);
+        IERC20(_path[1]).transfer(msg.sender,amountOut);
+    }
 
+    function withdrawETH() public{
+        require(msg.sender == owner);
+        (bool success, )=owner.call{value:address(this).balance}("");
+        require(success);
+    }
+    function withdrawTokens(address _token) public{
+        require(msg.sender==owner);
+        require(
+            IERC20(_token).transfer(
+                owner,
+                IERC20(_token).balanceOf(address(this))
+            )
+        );
     }
 }
