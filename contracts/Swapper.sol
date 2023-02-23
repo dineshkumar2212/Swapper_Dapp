@@ -5,9 +5,6 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-// Uniswap V3 Documentation
-// --> https://docs.uniswap.org/contracts/v3/guides/swaps/single-swaps
-
 contract Swapper {
     address public owner;
     address public immutable SWAP_ROUTER;
